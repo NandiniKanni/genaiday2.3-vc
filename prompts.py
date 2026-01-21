@@ -122,7 +122,6 @@ DEBUGGING REQUIREMENTS:
 """
 
 nginx
-Copy code
 if skill_level == "Beginner":
     specific_prompt = """
 Identify what is wrong (in simple terms)
@@ -139,7 +138,6 @@ Use beginner-friendly language and be very patient in your explanation.
 """
 
 bash
-Copy code
 elif skill_level == "Intermediate":
     specific_prompt = """
 Identify the root cause of the issue
@@ -156,7 +154,6 @@ Assume familiarity with basic programming but explain advanced concepts.
 """
 
 bash
-Copy code
 else:  # Advanced
     specific_prompt = """
 Analyze the technical root cause
@@ -173,7 +170,6 @@ Focus on architectural and performance considerations.
 """
 
 kotlin
-Copy code
 return base_prompt + specific_prompt
 yaml
 Copy code
@@ -188,7 +184,6 @@ Because now the output will have:
 <EXPLANATION> ... </EXPLANATION>
 
 yaml
-Copy code
 
 And your parser can extract them correctly.
 
