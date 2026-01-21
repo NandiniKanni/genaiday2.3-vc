@@ -1,333 +1,263 @@
 """
-Main Streamlit application for Vibe Code Editor + AI Debugger.
-This is the user interface that ties everything together.
+Main Streamlit application for Vibe Code Editor + AI Debugger
+GenAI Hackathon Ready 🚀
 """
 
 import streamlit as st
-import os
-from dotenv import load_dotenv
-import openai
 from groq import Groq
-from prompts import get_code_generation_prompt, get_explanation_prompt, get_debug_prompt
+from openai import OpenAI
+
+from prompts import (
+    get_code_generation_prompt,
+    get_explanation_prompt,
+    get_debug_prompt
+)
 from parser import ResponseParser
 from utils import (
-    get_skill_level_description, 
-    get_supported_languages, 
+    get_skill_level_description,
+    get_supported_languages,
     validate_user_input,
     show_loading_message
 )
 
-# Load environment variables
-load_dotenv()
 
 class VibeCodeEditor:
     """
-    Main application class for the Vibe Code Editor.
-    Handles all the different modes: Generate, Explain, Debug.
+    Main application class.
+    Handles Generate, Explain, Debug modes.
     """
-    
+
     def __init__(self):
         self.parser = ResponseParser()
         self.setup_llm()
-    
+
     def setup_llm(self):
         """
-        Initialize the LLM client based on available API keys.
-        Try Groq first (faster), fallback to OpenAI.
+        Initialize LLM using Streamlit Secrets
+        Priority: Groq → OpenAI
         """
-        
-        groq_key = os.getenv('GROQ_API_KEY')
-        openai_key = os.getenv('OPENAI_API_KEY')
-        
+
+        groq_key = st.secrets.get("GROQ_API_KEY", None)
+        openai_key = st.secrets.get("OPENAI_API_KEY", None)
+
         if groq_key:
             self.llm_client = Groq(api_key=groq_key)
             self.llm_provider = "groq"
             self.model_name = "mixtral-8x7b-32768"
+
         elif openai_key:
-            self.llm_client = openai.OpenAI(api_key=openai_key)
-            self.llm_provider = "openai" 
+            self.llm_client = OpenAI(api_key=openai_key)
+            self.llm_provider = "openai"
             self.model_name = "gpt-3.5-turbo"
+
         else:
-            st.error("Please set GROQ_API_KEY or OPENAI_API_KEY in your .env file")
+            st.error("❌ Add GROQ_API_KEY or OPENAI_API_KEY in Streamlit Secrets")
             st.stop()
-    
+
     def call_llm(self, prompt: str) -> str:
         """
-        Makes API call to the configured LLM.
-        Handles different providers with unified interface.
+        Unified LLM call handler
         """
-        
+
         try:
             if self.llm_provider == "groq":
                 response = self.llm_client.chat.completions.create(
                     model=self.model_name,
                     messages=[{"role": "user", "content": prompt}],
-                    max_tokens=2000,
-                    temperature=0.7
+                    temperature=0.7,
+                    max_tokens=2000
                 )
                 return response.choices[0].message.content
-            
-            elif self.llm_provider == "openai":
+
+            if self.llm_provider == "openai":
                 response = self.llm_client.chat.completions.create(
                     model=self.model_name,
                     messages=[{"role": "user", "content": prompt}],
-                    max_tokens=2000,
-                    temperature=0.7
+                    temperature=0.7,
+                    max_tokens=2000
                 )
                 return response.choices[0].message.content
-                
+
         except Exception as e:
-            st.error(f"LLM API Error: {str(e)}")
+            st.error(f"LLM Error: {e}")
             return ""
-    
+
+    # ---------------- UI ---------------- #
+
     def render_header(self):
-        """
-        Renders the application header with title and description.
-        """
         st.set_page_config(
-            page_title="Vibe Code Editor", 
+            page_title="Vibe Code Editor",
             page_icon="🚀",
             layout="wide"
         )
-        
+
         st.title("🚀 Vibe Code Editor + AI Debugger")
-        st.markdown("""
-        **Your skill-adaptive coding companion!** 
-        Generate, explain, and debug code that matches your expertise level.
-        """)
-        
-        # Show current LLM provider
-        st.sidebar.info(f"🤖 Powered by: {self.llm_provider.upper()}")
-    
+        st.markdown(
+            "**Skill-adaptive AI coding assistant for learning, building & debugging.**"
+        )
+
+        st.sidebar.info(f"🤖 Provider: **{self.llm_provider.upper()}**")
+
     def render_mode_selection(self):
-        """
-        Renders the mode selection sidebar.
-        """
-        st.sidebar.title("🎯 Choose Your Mode")
-        
+        st.sidebar.title("🎯 Mode")
+
         mode = st.sidebar.radio(
-            "What would you like to do?",
-            ["🔧 Generate Code", "📚 Explain Code", "🐛 Debug Code"],
-            help="Select the mode based on what you want to accomplish"
+            "Choose:",
+            ["🔧 Generate Code", "📚 Explain Code", "🐛 Debug Code"]
         )
-        
-        return mode.split(" ", 1)[1]  # Remove emoji, return just the text
-    
+
+        return mode.split(" ", 1)[1]
+
     def render_skill_selection(self):
-        """
-        Renders skill level selection with descriptions.
-        """
         st.sidebar.markdown("---")
-        st.sidebar.title("📊 Your Skill Level")
-        
-        skill_level = st.sidebar.selectbox(
-            "Choose your programming level:",
-            ["Beginner", "Intermediate", "Advanced"],
-            help="This affects how code and explanations are presented to you"
+        st.sidebar.title("📊 Skill Level")
+
+        skill = st.sidebar.selectbox(
+            "Your level:",
+            ["Beginner", "Intermediate", "Advanced"]
         )
-        
-        # Show description of selected level
-        description = get_skill_level_description(skill_level)
-        st.sidebar.info(f"**{skill_level}**: {description}")
-        
-        return skill_level
-    
-    def render_generate_mode(self, skill_level: str):
-        """
-        Renders the code generation interface.
-        """
+
+        st.sidebar.info(
+            f"**{skill}** — {get_skill_level_description(skill)}"
+        )
+
+        return skill
+
+    # ---------------- MODES ---------------- #
+
+    def render_generate_mode(self, skill):
         st.header("🔧 Generate Code")
-        st.markdown("Describe what you want to build, and I'll create code for your skill level!")
-        
-        # Input form
+
         col1, col2 = st.columns([3, 1])
-        
+
         with col1:
             task = st.text_area(
                 "What do you want to build?",
-                placeholder="e.g., Create a function to reverse an array",
-                help="Be as specific as possible for better results"
+                placeholder="Create a Java program to reverse an array"
             )
-        
-        with col2:
-            language = st.selectbox(
-                "Programming Language:",
-                get_supported_languages()
-            )
-        
-        # Generate button
-        if st.button("🚀 Generate Code", type="primary"):
-            # Validate input
-            validation = validate_user_input(task, language, skill_level)
-            
-            if not validation['is_valid']:
-                for error in validation['errors']:
-                    st.error(error)
-                return
-            
-            # Generate code
-            with show_loading_message(f"Generating {skill_level.lower()}-level {language} code..."):
-                prompt = get_code_generation_prompt(task, language, skill_level)
-                response = self.call_llm(prompt)
-                
-                if response:
-                    parsed = self.parser.parse_code_generation(response)
-                    
-                    # Display results
-                    if parsed['has_code']:
-                        st.success("✅ Code generated successfully!")
-                        
-                        # Show the code
-                        st.subheader("📝 Generated Code")
-                        st.code(parsed['code'], language=language.lower())
-                        
-                        # Show explanation if available
-                        if parsed['has_explanation']:
-                            st.subheader("💡 Explanation")
-                            st.markdown(parsed['explanation'])
-                    
-                    else:
-                        st.warning("⚠️ Could not extract code from response. Here's the full response:")
-                        st.markdown(response)
-    
-    def render_explain_mode(self, skill_level: str):
-        """
-        Renders the code explanation interface.
-        """
-        st.header("📚 Explain Code")
-        st.markdown("Paste your code here, and I'll explain it at your skill level!")
-        
-        # Input form
-        col1, col2 = st.columns([3, 1])
-        
-        with col1:
-            code = st.text_area(
-                "Paste your code here:",
-                height=200,
-                placeholder="// Paste your code here\nfor (int i = 0; i < array.length; i++) {\n    // Your code\n}"
-            )
-        
-        with col2:
-            language = st.selectbox(
-                "Code Language:",
-                get_supported_languages()
-            )
-        
-        # Explain button
-        if st.button("📖 Explain Code", type="primary"):
-            if not code.strip():
-                st.error("Please paste some code to explain!")
-                return
-            
-            # Generate explanation
-            with show_loading_message(f"Generating {skill_level.lower()}-level explanation..."):
-                prompt = get_explanation_prompt(code, language, skill_level)
-                response = self.call_llm(prompt)
-                
-                if response:
-                    parsed = self.parser.parse_explanation(response)
-                    
-                    st.success("✅ Explanation generated!")
-                    
-                    # Show original code
-                    st.subheader("📝 Your Code")
-                    st.code(code, language=language.lower())
-                    
-                    # Show explanation
-                    st.subheader("💡 Explanation")
-                    
-                    if parsed['overview']:
-                        st.markdown(f"**Overview:** {parsed['overview']}")
-                    
-                    if parsed['details']:
-                        for i, detail in enumerate(parsed['details'], 1):
-                            if len(parsed['details']) > 1:
-                                st.markdown(f"**Step {i}:** {detail}")
-                            else:
-                                st.markdown(detail)
-    
-    def render_debug_mode(self, skill_level: str):
-        """
-        Renders the debugging interface.
-        """
-        st.header("🐛 Debug Code")
-        st.markdown("Having trouble with your code? I'll help you find and fix the issue!")
-        
-        # Input form
-        col1, col2 = st.columns([3, 1])
-        
-        with col1:
-            code = st.text_area(
-                "Paste your buggy code here:",
-                height=200,
-                placeholder="// Paste your code with issues here\nfor (int i = 0; i <= array.length; i++) {\n    System.out.println(array[i]);\n}"
-            )
-            
-            error_msg = st.text_area(
-                "Error message (optional):",
-                height=100,
-                placeholder="Paste any error messages you're getting..."
-            )
-        
-        with col2:
-            language = st.selectbox(
-                "Code Language:",
-                get_supported_languages()
-            )
-        
-        # Debug button
-        if st.button("🔍 Debug Code", type="primary"):
-            if not code.strip():
-                st.error("Please paste some code to debug!")
-                return
-            
-            # Generate debug analysis
-            with show_loading_message(f"Analyzing code for {skill_level.lower()}-level debugging..."):
-                prompt = get_debug_prompt(code, error_msg, language, skill_level)
-                response = self.call_llm(prompt)
-                
-                if response:
-                    parsed = self.parser.parse_debug_response(response)
-                    
-                    st.success("✅ Debug analysis complete!")
-                    
-                    # Show original code
-                    st.subheader("🔍 Original Code")
-                    st.code(code, language=language.lower())
-                    
-                    # Show problem description
-                    if parsed['problem_description']:
-                        st.subheader("❌ Problem Identified")
-                        st.error(parsed['problem_description'])
-                    
-                    # Show corrected code
-                    if parsed['has_corrected_code']:
-                        st.subheader("✅ Fixed Code")
-                        st.code(parsed['corrected_code'], language=language.lower())
-                    
-                    # Show full explanation
-                    st.subheader("💡 Detailed Explanation")
-                    st.markdown(parsed['full_explanation'])
-    
-    def run(self):
-        """
-        Main application entry point.
-        """
-        self.render_header()
-        
-        # Get user selections
-        mode = self.render_mode_selection()
-        skill_level = self.render_skill_selection()
-        
-        # Render appropriate mode
-        if mode == "Generate Code":
-            self.render_generate_mode(skill_level)
-        elif mode == "Explain Code":
-            self.render_explain_mode(skill_level)
-        elif mode == "Debug Code":
-            self.render_debug_mode(skill_level)
 
-# Run the application
+        with col2:
+            language = st.selectbox(
+                "Language",
+                get_supported_languages()
+            )
+
+        if st.button("🚀 Generate", type="primary"):
+            validation = validate_user_input(task, language, skill)
+
+            if not validation["is_valid"]:
+                for err in validation["errors"]:
+                    st.error(err)
+                return
+
+            with show_loading_message("Generating code..."):
+                prompt = get_code_generation_prompt(task, language, skill)
+                response = self.call_llm(prompt)
+
+            if response:
+                parsed = self.parser.parse_code_generation(response)
+
+                if parsed["has_code"]:
+                    st.subheader("📝 Code")
+                    st.code(parsed["code"], language=language.lower())
+
+                    if parsed["has_explanation"]:
+                        st.subheader("💡 Explanation")
+                        st.markdown(parsed["explanation"])
+                else:
+                    st.warning("Could not extract code")
+                    st.markdown(response)
+
+    def render_explain_mode(self, skill):
+        st.header("📚 Explain Code")
+
+        col1, col2 = st.columns([3, 1])
+
+        with col1:
+            code = st.text_area(
+                "Paste code",
+                height=220
+            )
+
+        with col2:
+            language = st.selectbox(
+                "Language",
+                get_supported_languages()
+            )
+
+        if st.button("📖 Explain", type="primary"):
+            if not code.strip():
+                st.error("Paste some code first")
+                return
+
+            with show_loading_message("Explaining..."):
+                prompt = get_explanation_prompt(code, language, skill)
+                response = self.call_llm(prompt)
+
+            parsed = self.parser.parse_explanation(response)
+
+            st.subheader("📝 Code")
+            st.code(code, language=language.lower())
+
+            st.subheader("💡 Explanation")
+            if parsed["overview"]:
+                st.markdown(f"**Overview:** {parsed['overview']}")
+
+            for i, step in enumerate(parsed["details"], 1):
+                st.markdown(f"**Step {i}:** {step}")
+
+    def render_debug_mode(self, skill):
+        st.header("🐛 Debug Code")
+
+        col1, col2 = st.columns([3, 1])
+
+        with col1:
+            code = st.text_area("Buggy Code", height=220)
+            error = st.text_area("Error Message (optional)", height=100)
+
+        with col2:
+            language = st.selectbox(
+                "Language",
+                get_supported_languages()
+            )
+
+        if st.button("🔍 Debug", type="primary"):
+            if not code.strip():
+                st.error("Paste code to debug")
+                return
+
+            with show_loading_message("Debugging..."):
+                prompt = get_debug_prompt(code, error, language, skill)
+                response = self.call_llm(prompt)
+
+            parsed = self.parser.parse_debug_response(response)
+
+            st.subheader("❌ Issue")
+            if parsed["problem_description"]:
+                st.error(parsed["problem_description"])
+
+            if parsed["has_corrected_code"]:
+                st.subheader("✅ Fixed Code")
+                st.code(parsed["corrected_code"], language=language.lower())
+
+            st.subheader("💡 Explanation")
+            st.markdown(parsed["full_explanation"])
+
+    # ---------------- RUN ---------------- #
+
+    def run(self):
+        self.render_header()
+
+        mode = self.render_mode_selection()
+        skill = self.render_skill_selection()
+
+        if mode == "Generate Code":
+            self.render_generate_mode(skill)
+        elif mode == "Explain Code":
+            self.render_explain_mode(skill)
+        elif mode == "Debug Code":
+            self.render_debug_mode(skill)
+
+
 if __name__ == "__main__":
-    app = VibeCodeEditor()
-    app.run()
+    VibeCodeEditor().run()
