@@ -42,7 +42,7 @@ class VibeCodeEditor:
         if groq_key:
             self.llm_client = Groq(api_key=groq_key, timeout=30)
             self.llm_provider = "groq"
-            self.model_name = "llama-3.1-70b-versatile"
+            self.model_name = "groq/compound"
         elif openai_key:
             self.llm_client = OpenAI(api_key=openai_key)
             self.llm_provider = "openai"
