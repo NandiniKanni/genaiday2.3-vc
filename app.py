@@ -244,11 +244,8 @@ class VibeCodeEditor:
 
             st.subheader("💡 Explanation")
             st.markdown(parsed["full_explanation"])
-               def render_optimize_mode(self, skill_level: str):
-        """
-        Renders the code optimization interface.
-        """
-        st.header("⚡ Optimize Code (Time & Space Complexity)")
+                def render_optimize_mode(self, skill_level: str):
+             st.header("⚡ Optimize Code (Time & Space Complexity)")
         st.markdown(
             "Paste your code and I will analyze its **time & space complexity** "
             "and suggest an **optimized version**."
@@ -289,7 +286,6 @@ Analyze the following code and:
 2. Explain performance bottlenecks clearly
 3. Suggest a more optimal approach (if possible)
 4. Provide optimized code
-5. Mention cases where optimization may not be necessary
 
 Skill level: {skill_level}
 Language: {language}
@@ -304,8 +300,8 @@ Code:
 
                 if response:
                     st.success("✅ Optimization Analysis Complete!")
-                    st.subheader("📉 Complexity Analysis & Optimization")
                     st.markdown(response)
+        
 
     # ---------------- RUN ---------------- #
 
