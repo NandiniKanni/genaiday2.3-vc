@@ -198,7 +198,7 @@ And your parser can extract them correctly.
 
 If you want, I can also provide a **full example response** from LLM so you can verify it matches the parser.
 
-Just say: **“Show me sample output”**
+Just say: **"Show me sample output"**
 
 
 
