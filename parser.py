@@ -74,34 +74,35 @@ class ResponseParser:
             'paragraph_count': len(paragraphs)
         }
     
-    def parse_debug_response(self, response: str) -> Dict[str, Any]:
-        """
-        Parses debugging response into structured sections.
-        Separates problem identification, explanation, and solution.
-        """
-        
-        # Extract corrected code if present
-        corrected_code = ""
-        code_matches = re.findall(self.code_pattern, response, re.DOTALL | re.IGNORECASE)
-        if code_matches:
-            # Usually the corrected code is the last or longest code block
-            corrected_code = code_matches[-1].strip()
-        
-        # Remove code blocks from explanation
-        explanation = re.sub(self.code_pattern, '\n[CODE BLOCK REMOVED]\n', response, flags=re.DOTALL | re.IGNORECASE)
-        explanation = explanation.strip()
-        
-        # Try to identify problem description (usually at the beginning)
-        paragraphs = [p.strip() for p in explanation.split('\n\n') if p.strip()]
-        problem_description = paragraphs[0] if paragraphs else ""
-        
-        return {
-            'problem_description': problem_description,
-            'corrected_code': corrected_code,
-            'full_explanation': explanation,
-            'has_corrected_code': bool(corrected_code),
-            'solution_steps': paragraphs
-        }
+   def parse_debug_response(self, response: str) -> Dict[str, Any]:
+    """
+    Parses debugging response into structured sections.
+    Separates problem identification, corrected code, and explanation.
+    """
+
+    # Extract corrected code
+    corrected_code = ""
+    code_matches = re.findall(self.code_pattern, response, re.DOTALL | re.IGNORECASE)
+    if code_matches:
+        corrected_code = code_matches[-1].strip()
+
+    # Extract problem section
+    problem_match = re.search(r"<PROBLEM>(.*?)</PROBLEM>", response, re.DOTALL | re.IGNORECASE)
+    problem_description = problem_match.group(1).strip() if problem_match else ""
+
+    # Extract explanation section
+    explanation_match = re.search(r"<EXPLANATION>(.*?)</EXPLANATION>", response, re.DOTALL | re.IGNORECASE)
+    explanation = explanation_match.group(1).strip() if explanation_match else ""
+
+    return {
+        "problem_description": problem_description,
+        "corrected_code": corrected_code,
+        "explanation": explanation,
+        "has_corrected_code": bool(corrected_code),
+        "has_problem": bool(problem_description),
+        "has_explanation": bool(explanation),
+    }
+
     
     def clean_response(self, response: str) -> str:
         """
