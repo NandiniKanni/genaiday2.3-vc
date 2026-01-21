@@ -44,7 +44,7 @@ class VibeCodeEditor:
             self.llm_client = Groq(api_key=groq_key)
             self.llm_provider = "groq"
             self.model_name = "groq/compound"
-"
+
 
         elif openai_key:
             self.llm_client = Groq(api_key=groq_key, timeout=30)
