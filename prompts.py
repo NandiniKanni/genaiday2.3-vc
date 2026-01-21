@@ -1,4 +1,4 @@
-
+"""
 Prompt templates for different modes and skill levels.
 This is the brain of our application - it tells the AI exactly what we want.
 """
