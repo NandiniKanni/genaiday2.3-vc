@@ -1,4 +1,3 @@
-"""
 Prompt templates for different modes and skill levels.
 This is the brain of our application - it tells the AI exactly what we want.
 """
@@ -9,7 +8,6 @@ def get_code_generation_prompt(task: str, language: str, skill_level: str) -> st
     This is where the magic happens - different prompts for different levels!
     """
     
-    # Base prompt that applies to all levels
     base_prompt = f"""
 You are a {skill_level.lower()}-level programming tutor. 
 Generate {language} code for: "{task}"
@@ -20,7 +18,6 @@ IMPORTANT RULES:
 - Use coding style typical for {skill_level} developers
 """
     
-    # Skill-specific instructions
     if skill_level == "Beginner":
         specific_prompt = """
 BEGINNER REQUIREMENTS:
@@ -119,69 +116,70 @@ User Code:
 {error_section}
 
 <PROBLEM> Explain what is wrong in simple terms. </PROBLEM>
-
 <CORRECTED_CODE>
 Provide corrected code only inside code block.
 </CORRECTED_CODE>
 
 <EXPLANATION> Explain the fix in simple terms. </EXPLANATION>
-
 DEBUGGING REQUIREMENTS:
 """
+
+nginx
+Copy code
 if skill_level == "Beginner":
     specific_prompt = """
-1.Identify what is wrong (in simple terms)
+Identify what is wrong (in simple terms)
 
-2.Explain WHY this error happens (like explaining to a friend)
+Explain WHY this error happens (like explaining to a friend)
 
-3.Show the corrected code with comments
+Show the corrected code with comments
 
-4.Explain how to avoid this mistake in the future
+Explain how to avoid this mistake in the future
 
-5.Provide a simple test case to verify the fix
+Provide a simple test case to verify the fix
 
 Use beginner-friendly language and be very patient in your explanation.
 """
+
+bash
+Copy code
 elif skill_level == "Intermediate":
     specific_prompt = """
-1.Identify the root cause of the issue
+Identify the root cause of the issue
 
-2.Explain the underlying programming concept involved
+Explain the underlying programming concept involved
 
-3.Provide the corrected code with good practices
+Provide the corrected code with good practices
 
-4.Suggest debugging techniques for similar issues
+Suggest debugging techniques for similar issues
 
-5.Mention related concepts to be aware of
+Mention related concepts to be aware of
+
 Assume familiarity with basic programming but explain advanced concepts.
 """
+
+bash
+Copy code
 else:  # Advanced
     specific_prompt = """
-1.Analyze the technical root cause
+Analyze the technical root cause
 
-2.Discuss performance/design implications of the bug
+Discuss performance/design implications of the bug
 
-3.Provide an optimized, robust solution
+Provide an optimized, robust solution
 
-4.Suggest refactoring opportunities
+Suggest refactoring opportunities
 
-5.Recommend debugging tools/techniques for production
+Recommend debugging tools/techniques for production
+
 Focus on architectural and performance considerations.
 """
+
+kotlin
+Copy code
 return base_prompt + specific_prompt
-
----
-
-# ✅ After this fix
-Your app will not crash anymore due to syntax error.
-
----
-
-# 🔥 Next Step (if you want)
-Once this is fixed, you can test your app again and I will help you fix the **LLM model decommissioned** error.
-
-Just tell me:  
-**"Now I’m getting model decommissioned error"** and I’ll guide you.
+yaml
+Copy code
 
 
 
