@@ -41,7 +41,9 @@ class VibeCodeEditor:
         openai_key = st.secrets.get("OPENAI_API_KEY", None)
 
         if groq_key:
-            self.llm_client = Groq(api_key=groq_key)
+            
+            self.llm_client = Groq(api_key=groq_key, timeout=30)
+
             self.llm_provider = "groq"
             self.model_name = "mixtral-8x7b-32768"
 
