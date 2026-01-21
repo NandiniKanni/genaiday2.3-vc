@@ -112,46 +112,94 @@ User Code:
 {code}
 {error_section}
 
-⚠️ IMPORTANT: Reply ONLY in this format:
-
-<PROBLEM> Explain what is wrong in 2-3 lines. </PROBLEM>
+<PROBLEM> Explain what is wrong in simple terms. </PROBLEM>
 <CORRECTED_CODE>
-
-Writing
-
-Paste the full corrected code here
+Provide corrected code only inside code block.
 </CORRECTED_CODE>
 
-<EXPLANATION> Explain the fix in simple language. </EXPLANATION> """
+<EXPLANATION> Explain the fix in simple terms. </EXPLANATION>
+DEBUGGING REQUIREMENTS:
+"""
+
+nginx
+Copy code
+if skill_level == "Beginner":
+    specific_prompt = """
+Identify what is wrong (in simple terms)
+
+Explain WHY this error happens (like explaining to a friend)
+
+Show the corrected code with comments
+
+Explain how to avoid this mistake in the future
+
+Provide a simple test case to verify the fix
+
+Use beginner-friendly language and be very patient in your explanation.
+"""
+
+bash
+Copy code
+elif skill_level == "Intermediate":
+    specific_prompt = """
+Identify the root cause of the issue
+
+Explain the underlying programming concept involved
+
+Provide the corrected code with good practices
+
+Suggest debugging techniques for similar issues
+
+Mention related concepts to be aware of
+
+Assume familiarity with basic programming but explain advanced concepts.
+"""
+
+bash
+Copy code
+else:  # Advanced
+    specific_prompt = """
+Analyze the technical root cause
+
+Discuss performance/design implications of the bug
+
+Provide an optimized, robust solution
+
+Suggest refactoring opportunities
+
+Recommend debugging tools/techniques for production
+
+Focus on architectural and performance considerations.
+"""
+
 kotlin
 Copy code
-return base_prompt
+return base_prompt + specific_prompt
 yaml
 Copy code
 
 ---
 
-# Why this works 🔥
+# ✅ Now your parser will work perfectly!
 
-### ✅ Your parser will now always find the corrected code because:
-- It is **inside a code block**
-- The AI will always follow the exact format
-- No random explanation or stray text will break parsing
+Because now the output will have:
+
+<PROBLEM> ... </PROBLEM>
+<EXPLANATION> ... </EXPLANATION>
+
+yaml
+Copy code
+
+And your parser can extract them correctly.
 
 ---
 
-# Want the parser fixed too?
+# 🧠 Final Tip
 
-If you want, I can also update the **parser** so it extracts:
+If you want, I can also provide a **full example response** from LLM so you can verify it matches the parser.
 
-✔ Problem  
-✔ Corrected code  
-✔ Explanation  
+Just say: **“Show me sample output”**
 
-perfectly every time.
-
-Just say:  
-**“Yes update parser too.”**
 
 
 
