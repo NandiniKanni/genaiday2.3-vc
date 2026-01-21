@@ -1,3 +1,4 @@
+"""
 Prompt templates for different modes and skill levels.
 This is the brain of our application - it tells the AI exactly what we want.
 """
@@ -116,19 +117,18 @@ User Code:
 {error_section}
 
 <PROBLEM> Explain what is wrong in simple terms. </PROBLEM>
+
 <CORRECTED_CODE>
 Provide corrected code only inside code block.
 </CORRECTED_CODE>
 
 <EXPLANATION> Explain the fix in simple terms. </EXPLANATION>
+
 DEBUGGING REQUIREMENTS:
 """
-
-nginx
-
 if skill_level == "Beginner":
     specific_prompt = """
-Identify what is wrong (in simple terms)
+    Identify what is wrong (in simple terms)
 
 Explain WHY this error happens (like explaining to a friend)
 
@@ -140,9 +140,6 @@ Provide a simple test case to verify the fix
 
 Use beginner-friendly language and be very patient in your explanation.
 """
-
-bash
-
 elif skill_level == "Intermediate":
     specific_prompt = """
 Identify the root cause of the issue
@@ -157,9 +154,6 @@ Mention related concepts to be aware of
 
 Assume familiarity with basic programming but explain advanced concepts.
 """
-
-bash
-
 else:  # Advanced
     specific_prompt = """
 Analyze the technical root cause
@@ -174,9 +168,8 @@ Recommend debugging tools/techniques for production
 
 Focus on architectural and performance considerations.
 """
-
-
 return base_prompt + specific_prompt
+
 
 
 
