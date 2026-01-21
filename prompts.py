@@ -1,66 +1,46 @@
-"""
-Prompt templates for different modes and skill levels.
-This is the brain of our application - it tells the AI exactly what we want.
-"""
-
 def get_code_generation_prompt(task: str, language: str, skill_level: str) -> str:
-    """
-    Creates a prompt for code generation based on skill level.
-    This is where the magic happens - different prompts for different levels!
-    """
-    
     base_prompt = f"""
 You are a {skill_level.lower()}-level programming tutor. 
 Generate {language} code for: "{task}"
-
 IMPORTANT RULES:
 - Write code appropriate for {skill_level} level programmers
 - Include comments suitable for this skill level
 - Use coding style typical for {skill_level} developers
 """
-    
     if skill_level == "Beginner":
         specific_prompt = """
 BEGINNER REQUIREMENTS:
-- Use very simple, readable variable names
-- Add comments explaining EVERY line of code
-- Break complex operations into multiple simple steps
-- Use basic language features only
+- Use simple, readable variable names
+- Comment every line
+- Break complex operations into simple steps
+- Use basic language features
 - Include example usage
-- Explain what each part does in plain English
+- Explain each part in plain English
 """
-    
     elif skill_level == "Intermediate":
         specific_prompt = """
 INTERMEDIATE REQUIREMENTS:
-- Use clean, meaningful variable and function names
-- Add comments for complex logic only
-- Follow standard coding conventions
+- Clean, meaningful variable and function names
+- Comment complex logic only
+- Follow coding conventions
 - Use appropriate data structures
-- Include error handling where relevant
+- Include error handling
 - Write modular, reusable code
 """
-    
     else:  # Advanced
         specific_prompt = """
 ADVANCED REQUIREMENTS:
-- Write optimized, efficient code
-- Use advanced language features appropriately
+- Optimized, efficient code
+- Advanced language features
 - Minimal but meaningful comments
 - Consider edge cases and performance
 - Apply relevant design patterns
 - Focus on maintainability and scalability
 """
-    
     return base_prompt + specific_prompt
 
 
 def get_explanation_prompt(code: str, language: str, skill_level: str) -> str:
-    """
-    Creates a prompt for explaining code based on skill level.
-    Different levels need different depths of explanation.
-    """
-    
     base_prompt = f"""
 You are a {skill_level.lower()}-level programming tutor.
 Explain this {language} code in a way that a {skill_level} programmer would understand:
@@ -69,45 +49,36 @@ Explain this {language} code in a way that a {skill_level} programmer would unde
 
 EXPLANATION REQUIREMENTS:
 """
-    
     if skill_level == "Beginner":
         specific_prompt = """
-- Explain every single line of code
+- Explain every line
 - Use simple, non-technical language
-- Define any programming terms you use
-- Show what the output would look like
-- Explain WHY each step is necessary
-- Compare to real-world analogies where helpful
+- Define programming terms
+- Show output
+- Explain WHY
+- Compare to real-world analogies
 """
-    
     elif skill_level == "Intermediate":
         specific_prompt = """
-- Explain the overall logic and approach
-- Highlight important programming concepts used
-- Explain complex parts in detail
-- Mention alternative approaches briefly
-- Point out good coding practices demonstrated
+- Explain overall logic
+- Highlight key concepts
+- Explain complex parts
+- Mention alternatives briefly
+- Point out good practices
 """
-    
     else:  # Advanced
         specific_prompt = """
-- Focus on algorithm complexity and efficiency
-- Discuss design patterns or architectural decisions
-- Analyze performance implications
-- Suggest potential optimizations
-- Compare with alternative implementations
+- Focus on algorithm complexity
+- Discuss design patterns or architecture
+- Analyze performance
+- Suggest optimizations
+- Compare alternatives
 """
-    
     return base_prompt + specific_prompt
 
 
 def get_debug_prompt(code: str, error: str, language: str, skill_level: str) -> str:
-    """
-    Creates a prompt for debugging code based on skill level.
-    """
-    
     error_section = f"\nError message: {error}" if error.strip() else ""
-
     base_prompt = f"""
 You are a {skill_level.lower()}-level programming debugging tutor.
 
@@ -127,46 +98,42 @@ Provide corrected code only inside code block.
 DEBUGGING REQUIREMENTS:
 """
 if skill_level == "Beginner":
-    specific_prompt = """
-    Identify what is wrong (in simple terms)
+specific_prompt = """
+Identify what is wrong (simple terms)
 
-Explain WHY this error happens (like explaining to a friend)
+Explain WHY
 
-Show the corrected code with comments
+Show corrected code with comments
 
-Explain how to avoid this mistake in the future
+Explain how to avoid this
 
-Provide a simple test case to verify the fix
-
-Use beginner-friendly language and be very patient in your explanation.
+Provide a simple test case
 """
 elif skill_level == "Intermediate":
-    specific_prompt = """
-Identify the root cause of the issue
+specific_prompt = """
 
-Explain the underlying programming concept involved
+Identify root cause
 
-Provide the corrected code with good practices
+Explain underlying concept
 
-Suggest debugging techniques for similar issues
+Provide corrected code
 
-Mention related concepts to be aware of
+Suggest debugging techniques
 
-Assume familiarity with basic programming but explain advanced concepts.
+Mention related concepts
 """
-else:  # Advanced
-    specific_prompt = """
-Analyze the technical root cause
+else:
+specific_prompt = """
 
-Discuss performance/design implications of the bug
+Analyze technical root cause
 
-Provide an optimized, robust solution
+Discuss performance/design implications
 
-Suggest refactoring opportunities
+Provide optimized solution
 
-Recommend debugging tools/techniques for production
+Suggest refactoring
 
-Focus on architectural and performance considerations.
+Recommend debugging tools
 """
 return base_prompt + specific_prompt
 
