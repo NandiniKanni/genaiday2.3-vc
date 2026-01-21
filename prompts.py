@@ -181,7 +181,7 @@ Your app will not crash anymore due to syntax error.
 Once this is fixed, you can test your app again and I will help you fix the **LLM model decommissioned** error.
 
 Just tell me:  
-**“Now I’m getting model decommissioned error”** and I’ll guide you.
+**"Now I’m getting model decommissioned error"** and I’ll guide you.
 
 
 
