@@ -105,7 +105,7 @@ class VibeCodeEditor:
 
         mode = st.sidebar.radio(
             "Choose:",
-            ["🔧 Generate Code", "📚 Explain Code", "🐛 Debug Code"]
+            ["🔧 Generate Code", "📚 Explain Code", "🐛 Debug Code","⚡ Optimize Code"]
         )
 
         return mode.split(" ", 1)[1]
@@ -244,6 +244,68 @@ class VibeCodeEditor:
 
             st.subheader("💡 Explanation")
             st.markdown(parsed["full_explanation"])
+               def render_optimize_mode(self, skill_level: str):
+        """
+        Renders the code optimization interface.
+        """
+        st.header("⚡ Optimize Code (Time & Space Complexity)")
+        st.markdown(
+            "Paste your code and I will analyze its **time & space complexity** "
+            "and suggest an **optimized version**."
+        )
+
+        col1, col2 = st.columns([3, 1])
+
+        with col1:
+            code = st.text_area(
+                "Paste your code here:",
+                height=220,
+                placeholder="Paste your DSA / LeetCode solution here..."
+            )
+
+            problem_desc = st.text_area(
+                "Problem description (optional):",
+                height=100,
+                placeholder="e.g. Check if array contains duplicates"
+            )
+
+        with col2:
+            language = st.selectbox(
+                "Code Language:",
+                get_supported_languages()
+            )
+
+        if st.button("⚡ Optimize Code", type="primary"):
+            if not code.strip():
+                st.error("Please paste some code to optimize!")
+                return
+
+            with show_loading_message("Analyzing and optimizing your code..."):
+                prompt = f"""
+You are a senior software engineer and DSA expert.
+
+Analyze the following code and:
+1. Determine its current TIME and SPACE complexity
+2. Explain performance bottlenecks clearly
+3. Suggest a more optimal approach (if possible)
+4. Provide optimized code
+5. Mention cases where optimization may not be necessary
+
+Skill level: {skill_level}
+Language: {language}
+
+Problem description:
+{problem_desc}
+
+Code:
+{code}
+"""
+                response = self.call_llm(prompt)
+
+                if response:
+                    st.success("✅ Optimization Analysis Complete!")
+                    st.subheader("📉 Complexity Analysis & Optimization")
+                    st.markdown(response)
 
     # ---------------- RUN ---------------- #
 
@@ -259,6 +321,9 @@ class VibeCodeEditor:
             self.render_explain_mode(skill)
         elif mode == "Debug Code":
             self.render_debug_mode(skill)
+        elif mode == "Optimize Code":
+            self.render_optimize_mode(skill_level)
+
 
 
 if __name__ == "__main__":
