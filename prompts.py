@@ -116,6 +116,73 @@ You are a {skill_level.lower()}-level programming debugging tutor.
 User Code:
 ```{language}
 {code}
+{error_section}
+
+<PROBLEM> Explain what is wrong in simple terms. </PROBLEM>
+
+<CORRECTED_CODE>
+Provide corrected code only inside code block.
+</CORRECTED_CODE>
+
+<EXPLANATION> Explain the fix in simple terms. </EXPLANATION>
+
+DEBUGGING REQUIREMENTS:
+"""
+if skill_level == "Beginner":
+    specific_prompt = """
+1.Identify what is wrong (in simple terms)
+
+2.Explain WHY this error happens (like explaining to a friend)
+
+3.Show the corrected code with comments
+
+4.Explain how to avoid this mistake in the future
+
+5.Provide a simple test case to verify the fix
+
+Use beginner-friendly language and be very patient in your explanation.
+"""
+elif skill_level == "Intermediate":
+    specific_prompt = """
+1.Identify the root cause of the issue
+
+2.Explain the underlying programming concept involved
+
+3.Provide the corrected code with good practices
+
+4.Suggest debugging techniques for similar issues
+
+5.Mention related concepts to be aware of
+Assume familiarity with basic programming but explain advanced concepts.
+"""
+else:  # Advanced
+    specific_prompt = """
+1.Analyze the technical root cause
+
+2.Discuss performance/design implications of the bug
+
+3.Provide an optimized, robust solution
+
+4.Suggest refactoring opportunities
+
+5.Recommend debugging tools/techniques for production
+Focus on architectural and performance considerations.
+"""
+return base_prompt + specific_prompt
+
+---
+
+# ✅ After this fix
+Your app will not crash anymore due to syntax error.
+
+---
+
+# 🔥 Next Step (if you want)
+Once this is fixed, you can test your app again and I will help you fix the **LLM model decommissioned** error.
+
+Just tell me:  
+**“Now I’m getting model decommissioned error”** and I’ll guide you.
+
 
 
 
